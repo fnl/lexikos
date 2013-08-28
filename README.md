@@ -4,7 +4,7 @@ Lexicos
 Synopsis
 --------
 
-This library provides a set-like data structure for the [Scala][1] , a *Lexicon*.
+This library provides a set-like data structure for the [Scala][1], a *Lexicon*.
 
   [1]: http://www.scala-lang.org/
 
@@ -86,7 +86,7 @@ object Lexicon extends {
 Copyright
 ---------
 
-(C) Florian Leitner 2013. All rights reserved.
+&copy; Florian Leitner 2013. All rights reserved.
 
 License
 -------
