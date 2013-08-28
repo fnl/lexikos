@@ -89,6 +89,6 @@ This library is made availabe under the terms of the:
 
 __Apache License v2__
 
-[Scala langauge] http://www.scala-lang.org/
-[Daciuk et al.]: http://www.mitpressjournals.org/doi/abs/10.1162/089120100561601
-[SortedSet API]: http://www.scala-lang.org/api/2.10.0/index.html#scala.collection.SortedSet
+  [Scala language] http://www.scala-lang.org/
+  [Daciuk et al.]: http://www.mitpressjournals.org/doi/abs/10.1162/089120100561601
+  [SortedSet API]: http://www.scala-lang.org/api/2.10.0/index.html#scala.collection.SortedSet
