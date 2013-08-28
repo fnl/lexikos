@@ -4,7 +4,7 @@ Lexicos
 Synopsis
 --------
 
-This library provides a set-like data structure for [Scala], a *Lexicon*.
+This library provides a set-like data structure for the [Scala language], a *Lexicon*.
 
 Behaviour
 ---------
@@ -14,7 +14,7 @@ A Lexicon is a specialized, immutable, sorted set of sequences containing elemen
 Implementation
 --------------
 
-To achieve this behaviour, a Lexicon creates a minimal acyclic deterministic finite state automaton (MADFA) representation of all contained sequences. To build that MADFA, it uses the linear (`O(n)`) MADFA construction algorithm (see "Algorithm 1") described in [Daciuk et al.], Comp Ling 2000. Matching the entire set against an input sequence is also linear wrt. the length `m` of the input sequence (`O(m)`).
+To achieve this behaviour, a Lexicon creates a minimal acyclic deterministic finite state automaton (MADFA) representation of all sequences it contains. To build that MADFA, it uses the linear ("_O(n)_") MADFA construction algorithm (see "Algorithm 1") described in [Daciuk et al.], Comp Ling 2000. Matching the entire set against an input sequence is also approximately linear wrt. the length _m_ of the input sequence ("_O(m)_").
 
 API
 ---
@@ -89,6 +89,6 @@ This library is made availabe under the terms of the:
 
 __Apache License v2__
 
-[Scala] http://www.scala-lang.org/
+[Scala langauge] http://www.scala-lang.org/
 [Daciuk et al.]: http://www.mitpressjournals.org/doi/abs/10.1162/089120100561601
 [SortedSet API]: http://www.scala-lang.org/api/2.10.0/index.html#scala.collection.SortedSet
