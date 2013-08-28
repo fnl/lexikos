@@ -8,10 +8,16 @@ This library provides a set-like data structure for the [Scala][1], a *Lexicon*.
 
   [1]: http://www.scala-lang.org/
 
-Behaviour
----------
+About
+-----
 
-A Lexicon is a specialized, immutable, sorted set of sequences containing elements of a generic, but ordered type (`Lexicon[T <% Ordered[T]] <: SortedSet[Seq[T]]`) that can be used to scan indexed input sequences for the presence of any sequence contained in the set at a given offset in the input sequence.
+A *Lexicon* is a specialized, immutable, sorted set of sequences containing elements of a generic, but ordered type:
+
+```scala
+Lexicon[T <% Ordered[T]] <: SortedSet[Seq[T]]
+```
+
+It can be used to scan indexed input sequences for the presence of any sequence contained in the set at a given offset in the input sequence.
 
 Implementation
 --------------
