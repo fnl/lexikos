@@ -4,7 +4,9 @@ Lexicos
 Synopsis
 --------
 
-This library provides a set-like data structure for the [Scala language][], a *Lexicon*.
+This library provides a set-like data structure for the [Scala][1] , a *Lexicon*.
+
+  [1]: http://www.scala-lang.org/
 
 Behaviour
 ---------
@@ -14,12 +16,16 @@ A Lexicon is a specialized, immutable, sorted set of sequences containing elemen
 Implementation
 --------------
 
-To achieve this behaviour, a Lexicon creates a minimal acyclic deterministic finite state automaton (MADFA) representation of all sequences it contains. To build that MADFA, it uses the linear ("_O(n)_") MADFA construction algorithm (see "Algorithm 1") described in [Daciuk et al.][], Comp Ling 2000. Matching the entire set against an input sequence is also approximately linear wrt. the length _m_ of the input sequence ("_O(m)_").
+To achieve this behaviour, a Lexicon creates a minimal acyclic deterministic finite state automaton (MADFA) representation of all sequences it contains. To build that MADFA, it uses the linear ("_O(n)_") MADFA construction algorithm (see "Algorithm 1") described in [Daciuk et al.][2], Comp Ling 2000. Matching the entire set against an input sequence is also approximately linear wrt. the length _m_ of the input sequence ("_O(m)_").
+
+  [2]: http://www.mitpressjournals.org/doi/abs/10.1162/089120100561601
 
 API
 ---
 
-In addition to the default [SortedSet API][], a Lexicon provides the following methods:
+In addition to the default [SortedSet API][3], a Lexicon provides the following methods:
+
+  [3]: http://www.scala-lang.org/api/2.10.0/index.html#scala.collection.SortedSet
 
 ```scala
 /** A Minimal Acyclic DFA (MADFA) data structure for sets of sequences ("words")
@@ -85,10 +91,7 @@ Copyright
 License
 -------
 
-This library is made availabe under the terms of the:
+This library is made availabe under the terms of the [Apache License, Version 2.0][4].
 
-__Apache License v2__
+  [4]: http://www.apache.org/licenses/LICENSE-2.0.html
 
-  [Scala language] http://www.scala-lang.org/
-  [Daciuk et al.]: http://www.mitpressjournals.org/doi/abs/10.1162/089120100561601
-  [SortedSet API]: http://www.scala-lang.org/api/2.10.0/index.html#scala.collection.SortedSet
