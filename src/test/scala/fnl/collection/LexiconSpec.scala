@@ -16,11 +16,35 @@ class LexiconSpec extends FlatSpec with ShouldMatchers {
 		(result, t1 - t0)
 	}
 
-	"An empty Lexicon" should "contain no words" in {
+	"An empty Lexicon" should "not have any words" in {
 		Lexicon.empty[Char].toList should be === List()
 	}
-	it should "have size zero" in {Lexicon.empty[Char].size should be === 0}
-	it should "have length zero" in {Lexicon.empty[Char].length should be === 0}
+	it should "have size zero" in { Lexicon.empty[Char].size should be === 0 }
+	it should "have length zero" in { Lexicon.empty[Char].length should be === 0 }
+	it should "respond to contains" in { assert(!Lexicon.empty[Char].contains("a")) }
+	it should "not traverse anything" in { Lexicon.empty[Char].foreach(w => assert(w==false)) }
+	it should "have an empty iterator" in { Lexicon.empty[Char].iterator.length should be === 0 }
+	it should "have an empty prefix iterator" in {
+		Lexicon.empty[Char].iterator("a").length should be === 0
+	}
+	it should "only create empty range projections" in {
+		assert(Lexicon.empty[Char].range("a", "b") === Lexicon.empty[Char])
+	}
+	it should "be able to add any other word" in {
+		assert((Lexicon.empty[Char] + "a") === Lexicon("a"))
+	}
+	it should "remain empty after removing any word" in {
+		assert((Lexicon.empty[Char] - "a") === Lexicon.empty[Char])
+	}
+	it should "have a 'pseudo-empty' .dot string" in {
+		Lexicon.empty[Char].dot() should be === "digraph MADFA {\n  node [shape=circle]\n}"
+	}
+	it should "have an indexOf value of None" in {
+		Lexicon.empty[Char].indexOf("a") should be === None
+	}
+	it should "have a look-up value of None" in {
+		Lexicon.empty[Char].lookup("a") should be === None
+	}
 
 	"A Lexicon with one single-letter word" should "contain that word" in {
 		Lexicon("a").toList should be === List("a".toSeq)

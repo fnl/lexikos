@@ -4,7 +4,7 @@ package fnl.collection
  * (C) Florian Leitner 2013. All rights reserved. */
 
 import scala.annotation.tailrec
-import scala.collection._
+import scala.collection.mutable
 
 /** A Builder for a Lexicon.
   *
@@ -41,6 +41,34 @@ private class LexiconBuilder[T <% Ordered[T]] extends mutable.Builder[Seq[T], Le
 		}
 	}
 
+	/** Replace [and re-register] or register (update) the `parent -symbol-> child` transition. */
+	private def replaceOrUpdate(parent: Int, symbol: T, child: Int) {
+		val existing = registry.getOrElseUpdate(rightLanguage(child), child)
+		if (existing != child) { // replace
+			val entry = registry remove rightLanguage(parent)
+			words(existing) += words(child)
+			elems(parent) = elems(parent) + ( symbol -> existing )
+			assert(elems.length - 1 == child,
+				"child %d is not the last element added (%d)\n%s" format (child, elems.length, elems))
+			elems remove child
+			words remove child
+			if (entry.isDefined) registry put (rightLanguage(parent), parent)
+		}
+	}
+
+	/** Build a linear stack of all `parent -symbol-> child` transitions starting at `parent` by
+	  * following only the last ("max") transitions. */
+	@tailrec private def latestTransitions(parent: Int, stack: List[(Int, T, Int)]):
+	List[(Int, T, Int)] = {
+		val transitions = elems(parent)
+		if (transitions.isEmpty) stack
+		else {
+			val symbol = transitions.keys.max
+			val child = transitions(symbol)
+			latestTransitions(child, ( parent, symbol, child ) :: stack)
+		}
+	}
+
 	/** Register new states or expand transitions from existing states to add the latest unregistered
 	  * suffix - defined as path.substring(offset) - to the digraph.
 	  *
@@ -51,74 +79,28 @@ private class LexiconBuilder[T <% Ordered[T]] extends mutable.Builder[Seq[T], Le
 	  * This procedure is described in [1] (see Algorithm 1, "func replace_or_register(State)").
 	  *
 	  * @return the start state */
-	private def replaceOrRegister(lastState: Int) = {
-		// implemented as a while loop instead of the head recursion used in the paper
-		var transitions = elems(lastState)
-		var state = lastState
-		var stack = List[(Int, Map[T, Int])]()
-		// build up a "stack" of states as long as the current "state" has children
-		while (!transitions.isEmpty) {
-			stack = (state, transitions) +: stack
-			state = if (transitions.size == 1) transitions.values.head
-			else
-				transitions(transitions.keys.toSeq.sorted.last)
-			transitions = elems(state)
-		}
-		// while the stack is not empty, keep popping it,
-		// effectively working on the deepest states first
+	private def replaceOrRegister(lastState: Int) {
+		var stack = latestTransitions(lastState, Nil)
 		while (!stack.isEmpty) {
-			state = stack.head._1
-			transitions = stack.head._2
+			replaceOrUpdate(stack.head._1, stack.head._2, stack.head._3)
 			stack = stack.tail
-			val symbol = if (transitions.size == 1) transitions.keys.head
-			else
-				transitions.keys.toSeq.sorted.last
-			val child = transitions(symbol)
-			val code = rightLanguage(child)
-			registry.get(code) match {
-				case Some(existing) => {
-					// if so, replace the child with the registered state while ...
-					assert(existing != child, existing)
-					val parent = rightLanguage(state)
-					if (registry.contains(parent)) {
-						// [special case: update registry entry with new right language]
-						registry.remove(parent)
-						words(existing) += words(child)
-						elems(state) = elems(state) + ( symbol -> existing )
-						registry.put(rightLanguage(state), state)
-					} else {
-						words(existing) += words(child)
-						elems(state) = elems(state) + ( symbol -> existing )
-					}
-					// ... removing the replaced child entries, or ...
-					// [replaceable child states always should be the latest element]
-					assert(elems.length - 1 == child,
-						"child %d is not the last element (%d)\n%s".format(child, elems.length, elems))
-					elems.remove(child)
-					words.remove(child)
-				}
-				case None => {
-					// ... if not, only register the child's right language
-					registry.put(code, child)
-				}
-			}
 		}
 	}
 
 	/** Return the right Language for an existing state. */
 	private def rightLanguage(state: Int) =
-		LexiconBuilder.rightLanguage(elems(state), words(state) != 0)
+		LexiconBuilder rightLanguage (elems(state), words(state) != 0)
 
 	// Public Builder API ===========================================================================
 
 	/** Insert a new word into the Lexicon (has to be in [natural] order);
 	  * see [1], Algorithm 1, do loop). */
 	override def +=(word: Seq[T]): this.type = {
-		assert(Lexicon.ordering[T].lt(lastWord, word),
-			"%s < %s order violation".format(lastWord, word))
+		assert(Lexicon.ordering[T] lt (lastWord, word),
+			"%s < %s order violation" format (lastWord, word))
 		if (elems.length == 0) {
-			elems.append(Map.empty[T, Int]) // Start transitions
-			words.append(0) // Start node word count (always zero)
+			elems append Map.empty[T, Int]  // Start transitions
+			words append 0 // Start node word count (always zero)
 			addSuffix(word, 0)
 		} else {
 			val (lastState, suffix) = commonPrefix(word, 0)
@@ -157,14 +139,13 @@ private[collection] object LexiconBuilder {
 	private def rightLanguage[T <% Ordered[T]](
 		transitions: Map[T, Int], isFinal: Boolean = false): Vector[Int] = {
 		val code = Array.fill(1 + 2 * transitions.size) {0}
-		if (isFinal) code(0) = 1
 		var idx = 1
-		transitions.keys.toSeq.sorted.foreach({ case symbol => {
+		if (isFinal) code(0) = 1
+		transitions.keys.toSeq.sorted foreach { symbol => {
 			code(idx) = symbol.hashCode()
 			code(idx + 1) = transitions(symbol)
 			idx += 2
-		}
-		})
+		}}
 		code.toVector
 	}
 }
