@@ -20,15 +20,15 @@ import scala.math.Ordering.Implicits.seqDerivedOrdering
   * [1] [[http://www.mitpressjournals.org/doi/abs/10.1162/089120100561601
   * Daciuk et al., Comp Ling 2000]] */
 class Lexicon[T <% Ordered[T]](
-	private val digraph: IndexedSeq[Map[T, Int]] = IndexedSeq.empty,
-	private val words: IndexedSeq[Int] = IndexedSeq.empty)
+	val digraph: IndexedSeq[Map[T, Int]] = IndexedSeq.empty,
+	val words: IndexedSeq[Int] = IndexedSeq.empty)
 	extends SortedSet[Seq[T]] with SortedSetLike[Seq[T], Lexicon[T]] {
 
 	/* A Lexicon is represented as a MADFA, where a single state in the DFA is associated with
 	 * labeled transitions to child states, stored as a vector map of transitions.
-	 * Recursive functions are implemented as tail recursions or as while loops to avoid BOs when
-	 * working with a bigger Lexicon or long words. */
-	assert(digraph.length == words.length)
+	 * Recursive functions are implemented as tail recursions or as while loops to avoid BOs
+	 * when working with a bigger Lexicon or long words. */
+	require(digraph.length == words.length)
 
 	/** Pre-calculate the start state's transitions in [natural] order. */
 	lazy val startTransitions = if (digraph.length == 0) Nil else digraph(0).toList.sorted
@@ -38,9 +38,10 @@ class Lexicon[T <% Ordered[T]](
 		val buf = new StringBuilder()
 		var state = 0
 		digraph.foreach { transition =>
-			buf ++= "  %d [label=%s]\n" format (state, if (state == 0) "S" else words(state))
+			buf ++= "  %d [label=%s]\n".format(
+			  state, if (state == 0) "S" else words(state))
 			buf ++= transition.map { case (symbol, child) =>
-				"    %d -> %d [label=\" %s \"]\n" format (state, child, symbol)
+				"    %d -> %d [label=\" %s \"]\n".format(state, child, symbol)
 			}.mkString
 			state += 1
 		}
@@ -54,8 +55,8 @@ class Lexicon[T <% Ordered[T]](
 	  * @param end last known matching word offset (initially, `None`)
 	  * @param node current node in the digraph (initially, `Some(0)`)
 	  * @return the `offset` in `seq` of the longest matching word at `start`, if any */
-	@tailrec private def indexOf(seq: IndexedSeq[T], start: Int, end: Option[Int], node: Option[Int]):
-	Option[Int] = node match {
+	@tailrec private def indexOf(seq: IndexedSeq[T], start: Int, end: Option[Int],
+	                             node: Option[Int]): Option[Int] = node match {
 		case None => end
 		case Some(state) => {
 			val offset = if (0 != words(state)) Some(start) else end
@@ -77,7 +78,7 @@ class Lexicon[T <% Ordered[T]](
 					state = nextPath(stack, path)
 					path.reverse
 				}
-				case None => Iterator.empty next()
+				case None => Iterator.empty.next()
 			}
 
 			def hasNext: Boolean = state.isDefined
@@ -89,18 +90,19 @@ class Lexicon[T <% Ordered[T]](
 		val transitions = stack.head
 		if (!transitions.isEmpty) {
 			val (symbol, child) = transitions.next()
-			if (words(child) != 0) Some((sortedTransitions(child) :: stack, symbol :: path))
-			else nextPath(sortedTransitions(child) :: stack, symbol :: path)
+			if (words(child) != 0)
+			  Some((sortedTransitions(child) :: stack, symbol :: path))
+			else
+			  nextPath(sortedTransitions(child) :: stack, symbol :: path)
 		} else nextPath(stack.tail, if (path.isEmpty) path else path.tail)
 	} else None
 
 	/** Retrieve the state at the end of `path` if that path exists. */
-	@tailrec private def traverse(path: Seq[T], state: Int):
-	Option[Int] =
+	@tailrec private def traverse(path: Seq[T], state: Int): Option[Int] =
 		if (path.isEmpty) Some(state)
 		else {
-			val transitions = digraph(state)
-			if (transitions contains path.head) traverse(path.tail, transitions(path.head))
+			val trans = digraph(state)
+			if (trans contains path.head) traverse(path.tail, trans(path.head))
 			else None
 		}
 
@@ -109,22 +111,24 @@ class Lexicon[T <% Ordered[T]](
 		if (state == 0) startTransitions.iterator
 		else {
 			val transitions = digraph(state)
-			if (transitions.size < 2) transitions.iterator else transitions.toList.sorted.iterator
+			if (transitions.size < 2) transitions.iterator
+			else transitions.toList.sorted.iterator
 		}
 
-	/** Use a `stack` to walk the digraph, applying `func` to the `path` that represents the reversed
-	  * words. */
-	@tailrec private def walk[U](stack: List[Iterator[(T, Int)]], path: List[T], func: Seq[T] => U) {
+	/** Use a `stack` to walk the digraph, applying `func` to the `path` that represents the
+	  * reversed words. */
+	@tailrec private def walk[U](stack: List[Iterator[(T, Int)]], path: List[T],
+	                             func: Seq[T] => U) {
 		nextPath(stack, path) match {
 			case Some((s, p)) => {
 				func(p.reverse)
 				walk(s, p, func)
 			}
-			case None => // stop
+			case None => // stop walking
 		}
 	}
 
-	// Public Set API ==============================================================================
+	// Public Set API =========================================================================
 
 	/** Return `true` if the `word` is in the Lexicon. */
 	def contains(word: Seq[T]): Boolean = length != 0 &&
@@ -161,33 +165,34 @@ class Lexicon[T <% Ordered[T]](
 			}
 			case Some(start) => until match {
 				case None => ordering.lteq(start, _)
-				case Some(end) => word => ordering.gt(end, word) && ordering.lteq(start, word)
+				case Some(end) => word => ordering.gt(end, word) &&
+				                          ordering.lteq(start, word)
 			}
 		})
 
 	/** Calculate the number of words encoded by this Lexicon. */
-	override def size: Int =  (0 /: words) (_+_) // aka: words.foldLeft(0)((acc, e) => acc + e)
+	override def size: Int =  (0 /: words) (_+_)
 
-	/** Create a new set with an additional `word` inserted, unless that word is already present. */
+	/** Create a new set with `word` inserted, unless that word is already present. */
 	def +(word: Seq[T]): Lexicon[T] = if (!contains(word)) {
 		val (before, after) = iterator.partition(ordering.lt(_, word))
 		val builder = newBuilder
-		builder sizeHint (length + word.length)
+		builder.sizeHint(length + word.length)
 		before foreach builder.+=
 		builder += word
 		after foreach builder.+=
 		builder.result()
 	} else this
 
-	/** Create a new set with the given `word` removed, unless that word is not in the set. */
+	/** Create a new set with `word` removed, unless that word is not in the set. */
 	def -(word: Seq[T]): Lexicon[T] = if (contains(word)) {
 		val builder = newBuilder
-		builder sizeHint length
+		builder.sizeHint(length)
 		withFilter(word.!=) foreach builder.+=
 		builder.result()
 	} else this
 
-	// Public Lexicon API ==========================================================================
+	// Public Lexicon API =====================================================================
 
 	/** Generate a digraph representation of the underlying MADFA in Graphviz DOT format.
 	  *
@@ -195,8 +200,8 @@ class Lexicon[T <% Ordered[T]](
 	def dot(id: String = "MADFA"): String =
 		"digraph %s {\n  node [shape=circle]\n%s}".format(id, graphvizDot())
 
-	/** Find the end index of a word in the lexicon that is the longest common prefix in input at
-	  * offset `start`.
+	/** Find the end index of a word in the lexicon that is the longest common prefix in input
+	  * at offset `start`.
 	  *
 	  * @param input string to check
 	  * @param start offset at which to begin matching (default: 0)
@@ -206,26 +211,30 @@ class Lexicon[T <% Ordered[T]](
 		else None
 
 	/** Get an iterator for all words in the lexicon that start with `prefix`. */
-	def iterator(prefix: Seq[T]): Iterator[Seq[T]] = if (length != 0) traverse(prefix, 0) match {
-		case None => Nil.iterator
-		case Some(state) => words(state) match {
-			case 0 => iterator(state).map(prefix ++ _)
-			case _ => Iterator.single(prefix) ++ iterator(state).map(prefix ++ _)
-		}
-	} else Nil.iterator
+	def iterator(prefix: Seq[T]): Iterator[Seq[T]] =
+		if (length != 0) traverse(prefix, 0) match {
+			case None => Nil.iterator
+			case Some(state) => words(state) match {
+				case 0 => iterator(state).map(prefix ++ _)
+				case _ => Iterator.single(prefix) ++
+				          iterator(state).map(prefix ++ _)
+			}
+		} else Nil.iterator
 
 	/** Get the number of states in the underlying MADFA. */
 	def length: Int = digraph.length
 
-	/** Get the word in the lexicon that is the longest common prefix of `input` at offset `start`.
+	/** Get the word in the lexicon that is the longest common prefix of `input` at offset
+	  * `start`.
 	  *
-	  * This is equal to calling `input.substring(start, lexicon.find(input, start).get)` if such a
-	  * word and end offset exist.
+	  * This is equal to calling `input.substring(start, lexicon.find(input, start).get)` if
+	  * such a word and end offset exist.
 	  *
 	  * @param input string to check
 	  * @param start offset at which to begin matching (default: 0)
 	  * @return the matched word if any */
-	def lookup(input: IndexedSeq[T], start: Int = 0): Option[Seq[T]] = indexOf(input, start) match {
+	def lookup(input: IndexedSeq[T], start: Int = 0): Option[Seq[T]] =
+	indexOf(input, start) match {
 		case Some(end) => Some(input slice (start, end))
 		case None => None
 	}
@@ -238,7 +247,8 @@ object Lexicon extends {
 	/** Implicitly construct a new Lexicon while traversing an existing Lexicon. */
 	implicit def canBuildFrom[T : Ordering]: CanBuildFrom[Lexicon[T], Seq[T], Lexicon[T]] =
 		new CanBuildFrom[Lexicon[T], Seq[T], Lexicon[T]] {
-			def apply(from: Lexicon[T]): mutable.Builder[Seq[T], Lexicon[T]] = from.newBuilder
+			def apply(from: Lexicon[T]): mutable.Builder[Seq[T], Lexicon[T]] =
+				from.newBuilder
 			def apply(): mutable.Builder[Seq[T], Lexicon[T]] = newBuilder
 		}
 
@@ -275,6 +285,7 @@ object Lexicon extends {
 }
 
 private abstract class TransitionIterator[T](
-	/** A `stack` of transition `symbols: T` and child `states: Int` as '''ordered''' iterators. */
+	/** A `stack` of transition `symbols: T` and child `states: Int` as '''ordered'''
+	  * iterators. */
 	val start: List[Iterator[(T, Int)]])
 	extends Iterator[Seq[T]]

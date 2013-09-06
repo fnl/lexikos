@@ -115,7 +115,7 @@ class LexiconSpec extends FlatSpec with ShouldMatchers {
 		b.size should be === 2
 		assert(a != b)
 	}
-	it should "return the same Lexicon if no exisiting word is removed" in {
+	it should "return the same Lexicon if no existing word is removed" in {
 		val a = Lexicon("a", "b")
 		val b = a - "ab"
 		a.size should be === 2
@@ -123,7 +123,7 @@ class LexiconSpec extends FlatSpec with ShouldMatchers {
 		assert(a === b)
 	}
 
-	"A Lexicon" should "be convertible to Graphiz DOT langauge" in {
+	"A Lexicon" should "be convertible to Graphiz DOT language" in {
 		val dot = Lexicon("a").dot("test")
 		assert(dot.matches( """digraph test \{
  {2}node \[shape=circle\]
@@ -131,6 +131,11 @@ class LexiconSpec extends FlatSpec with ShouldMatchers {
  {4}0 -> 1 \[label=" a "\]
  {2}1 \[label=1\]
 \}"""), dot)
+	}
+	it should "throw an IllegalArgumentException if initialized with unequal length vectors" in {
+		intercept[IllegalArgumentException] {
+			new Lexicon[Int](Vector(), Vector(1))
+		}
 	}
 	it should "produce a range wrt. lexical order" in {
 		val range = Lexicon("a", "aa", "aaa", "aab", "ab", "b").range("aa", "ab")

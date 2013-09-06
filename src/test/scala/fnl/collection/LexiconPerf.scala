@@ -15,7 +15,7 @@ object LexiconPerf extends PerformanceTest {
 	lazy val reporter = new LoggingReporter
 	lazy val persistor = Persistor.None
 
-	val sizes = Gen.exponential("Lexicon.size")(10, 10000, 10)
+	val sizes = Gen.exponential("Lexicon.size")(10, 1000, 10)
 	val words = for {
 		size <- sizes
 	} yield Array.fill[Seq[Char]](size) {UUID.randomUUID.toString.toSeq :+ 'a'}
