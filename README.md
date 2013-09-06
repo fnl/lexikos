@@ -97,7 +97,7 @@ Copyright
 License
 -------
 
-This library is made availabe under the terms of the [Apache License, Version 2.0][4].
+This library is made available under the terms of the [Apache License, Version 2.0][4].
 
   [4]: http://www.apache.org/licenses/LICENSE-2.0.html
 
