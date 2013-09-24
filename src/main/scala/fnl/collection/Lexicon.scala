@@ -19,10 +19,11 @@ import scala.math.Ordering.Implicits.seqDerivedOrdering
   *
   * [1] [[http://www.mitpressjournals.org/doi/abs/10.1162/089120100561601
   * Daciuk et al., Comp Ling 2000]] */
+@SerialVersionUID(5076357267260851842L)
 class Lexicon[T <% Ordered[T]](
 	val digraph: IndexedSeq[Map[T, Int]] = IndexedSeq.empty,
 	val words: IndexedSeq[Int] = IndexedSeq.empty)
-	extends SortedSet[Seq[T]] with SortedSetLike[Seq[T], Lexicon[T]] {
+	extends SortedSet[Seq[T]] with SortedSetLike[Seq[T], Lexicon[T]] with Serializable {
 
 	/* A Lexicon is represented as a MADFA, where a single state in the DFA is associated with
 	 * labeled transitions to child states, stored as a vector map of transitions.
@@ -34,7 +35,7 @@ class Lexicon[T <% Ordered[T]](
 	lazy val startTransitions = if (digraph.length == 0) Nil else digraph(0).toList.sorted
 
 	/** Return a Graphviz DOT representation of the digraph and words (counts). */
-	private def graphvizDot(): String = {
+	private def graphvizDot: String = {
 		val buf = new StringBuilder()
 		var state = 0
 		digraph.foreach { transition =>
@@ -198,7 +199,7 @@ class Lexicon[T <% Ordered[T]](
 	  *
 	  * @param id name (graph 'ID' in DOT notation) to use for the digraph */
 	def dot(id: String = "MADFA"): String =
-		"digraph %s {\n  node [shape=circle]\n%s}".format(id, graphvizDot())
+		"digraph %s {\n  node [shape=circle]\n%s}".format(id, graphvizDot)
 
 	/** Find the end index of a word in the lexicon that is the longest common prefix in input
 	  * at offset `start`.
