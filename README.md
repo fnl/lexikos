@@ -40,7 +40,7 @@ In addition to the default [SortedSet API][3], a Lexicon provides the following 
   * All sequences except the '''empty word''' are valid words. */
 class Lexicon[T <% Ordered[T]]
     extends SortedSet[Seq[T]]
-    with SortedSetLike[Seq[T], Lexicon[T]] {
+    with SortedSetLike[Seq[T], Lexicon[T]] with Serializable {
 
   /** Generate a digraph representation of the underlying MADFA in Graphviz DOT format.
     * @param id name (graph 'ID' in DOT notation) to use for the digraph */
