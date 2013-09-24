@@ -3,7 +3,6 @@ package fnl.collection
 /* lexikos/fnl.collection [2013-08-21T14:53]
  * (C) Florian Leitner 2013. All rights reserved. */
 
-import java.util.UUID
 import org.scalatest.FlatSpec
 import org.scalatest.matchers.ShouldMatchers
 
@@ -183,5 +182,17 @@ class LexiconSpec extends FlatSpec with ShouldMatchers {
 	}
 	it should "be correctly built even from a non-unique sequence" in {
 		assert(Lexicon("a", "a", "a").toList === List("a".toSeq))
+	}
+	it should "be correctly de/serialized" in {
+		import java.io.{File, FileInputStream, FileOutputStream, ObjectInputStream, ObjectOutputStream}
+		val obj = File.createTempFile("serialization", ".bin")
+		obj.deleteOnExit()
+		val output = new ObjectOutputStream(new FileOutputStream(obj))
+		output.writeObject(Lexicon("a"))
+		output.close()
+		val input = new ObjectInputStream(new FileInputStream(obj))
+		val result = input.readObject.asInstanceOf[Lexicon[Char]]
+		input.close()
+		assert(result.toList === List("a".toSeq))
 	}
 }
