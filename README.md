@@ -22,7 +22,7 @@ It can be used to scan indexed input sequences for the presence of any sequence 
 Implementation
 --------------
 
-To achieve this behaviour, a Lexicon creates a minimal acyclic deterministic finite state automaton (MADFA) representation of all sequences it contains. To build that MADFA, it uses the linear ("_O(n)_") MADFA construction algorithm (see "Algorithm 1") described in [Daciuk et al.][2], Comp Ling 2000. Matching the entire set against an input sequence is also approximately linear wrt. the length _m_ of the input sequence ("_O(m)_").
+To achieve this behaviour, a Lexicon creates a minimal acyclic deterministic finite state automaton (MADFA) representation of all sequences it contains. To build that MADFA, it uses the linear ( _O(n)_ ) MADFA construction algorithm (see "Algorithm 1") described in [Daciuk et al.][2], Comp Ling 2000. Matching the entire set against an input sequence is also approximately linear wrt. the length _m_ of the input sequence ( _O(m)_ ).
 
   [2]: http://www.mitpressjournals.org/doi/abs/10.1162/089120100561601
 
