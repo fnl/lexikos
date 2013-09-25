@@ -21,7 +21,7 @@ class LexiconSpec extends FlatSpec with ShouldMatchers {
 	it should "have size zero" in { Lexicon.empty[Char].size should be === 0 }
 	it should "have length zero" in { Lexicon.empty[Char].length should be === 0 }
 	it should "respond to contains" in { assert(!Lexicon.empty[Char].contains("a")) }
-	it should "not traverse anything" in { Lexicon.empty[Char].foreach(w => assert(w==false)) }
+	it should "not traverse anything" in { Lexicon.empty[Char].foreach(w => assert(w == false)) }
 	it should "have an empty iterator" in { Lexicon.empty[Char].iterator.length should be === 0 }
 	it should "have an empty prefix iterator" in {
 		Lexicon.empty[Char].iterator("a").length should be === 0
@@ -138,7 +138,7 @@ class LexiconSpec extends FlatSpec with ShouldMatchers {
 	}
 	it should "produce a range wrt. lexical order" in {
 		val range = Lexicon("a", "aa", "aaa", "aab", "ab", "b").range("aa", "ab")
-		assert(range.toList === List("aa".toSeq, "aaa".toSeq, "aab".toSeq), range.dot())
+		assert(range.toList === List("aa".toSeq, "aaa".toSeq, "aab".toSeq), range)
 	}
 	it should "find the longest match offset in a string" in {
 		assert(Lexicon("a", "aa", "b").indexOf("a").get === 1)
