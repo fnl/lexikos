@@ -11,7 +11,7 @@ resolvers += "Sonatype OSS Snapshots" at
 
 libraryDependencies += "org.scalatest" % "scalatest_2.10" % "1.9.1" % "test"
 
-libraryDependencies += "com.github.axel22" %% "scalameter" % "0.3"
+libraryDependencies += "com.github.axel22" %% "scalameter" % "0.4-SNAPSHOT"
 
 libraryDependencies += "commons-lang" % "commons-lang" % "2.6"
 
